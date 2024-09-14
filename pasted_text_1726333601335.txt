@@ -1,0 +1,161 @@
+Detailed Requirements for the Business Rules Document Generation App
+1. Project Overview
+Develop a Python application that automates the generation of Word documents based on business rules provided in an Excel file. The application will:
+	•	Read business rules from an Excel file, extracting specific fields.
+	•	Invoke the OpenAI API for each rule to generate additional required information.
+	•	Generate a Word document for each rule using a predefined template, maintaining the provided structure.
+	•	Fill the template with both the extracted and AI-generated information.
+
+2. Functional Requirements
+2.1. Input Handling
+	•	FR1: The application shall accept an Excel file (.xlsx format) containing business rules.
+	•	FR2: The Excel file structure shall be configurable, allowing mapping of column names to expected fields in the application.
+	•	FR3: The application shall validate the Excel file to ensure all required fields are present: Rule ID, Severity (Error or Warning), and Description.
+2.2. Data Processing
+	•	FR4: The application shall read and parse each business rule from the Excel file, extracting:
+	◦	Rule ID
+	◦	Severity: Error or Warning
+	◦	Description
+	•	FR5: For each rule, the application shall invoke the OpenAI API to generate the following additional information:
+	◦	Title Domain + Rule ID
+	◦	Brief Description (if further elaboration is needed)
+	◦	Mapping Table Content:
+	▪	XML Element: The XML element the rule applies to.
+	▪	JSON Element: The corresponding JSON element after conversion.
+	◦	Rule Condition
+	◦	Rule Expressed in Pseudocode
+	◦	Any additional explanations or details as required by the Word template.
+	•	FR6: The application shall ensure that the AI-generated content is accurate and relevant to the rule's context.
+2.3. Document Generation
+	•	FR7: The application shall use the provided Word document template (.docx format) with a fixed structure and placeholders for dynamic content.
+	•	FR8: The application shall fill in the template with both the extracted and AI-generated information for each rule.
+	•	FR9: The application shall generate a separate Word document for each rule, preserving the template's structure and formatting.
+	•	FR10: The generated documents shall include all sections as specified in the template, such as titles, descriptions, mapping tables, conditions, pseudocode, and applied XML elements.
+2.4. OpenAI API Integration
+	•	FR11: The application shall invoke the OpenAI API for every rule without exception.
+	•	FR12: The OpenAI API shall be used to generate all required information not provided in the Excel file.
+	•	FR13: The application shall handle API rate limits and errors gracefully, including retry mechanisms and informative error messages.
+	•	FR14: The application shall comply with OpenAI's usage policies, including content guidelines and API terms of service.
+2.5. Configuration
+	•	FR15: The application shall allow configuration of:
+	◦	Excel file path.
+	◦	Word template path.
+	◦	Output directory.
+	◦	OpenAI API key (managed securely, e.g., via environment variables).
+2.6. Error Handling
+	•	FR16: The application shall handle errors gracefully, providing meaningful error messages for:
+	◦	Missing or invalid Excel files.
+	◦	Missing required fields in the Excel data.
+	◦	Issues with the Word template (e.g., missing placeholders).
+	◦	OpenAI API errors (e.g., network issues, API limits, invalid responses).
+2.7. Logging
+	•	FR17: The application shall log processing steps and errors to a log file for debugging and audit purposes.
+
+3. Non-Functional Requirements
+3.1. Performance
+	•	NFR1: The application should efficiently process and generate documents, even with a large number of rules, optimizing API calls where possible.
+3.2. Usability
+	•	NFR2: The application should be easy to configure and run, with clear instructions and minimal setup requirements.
+	•	NFR3: The output documents should maintain the provided template's structure, formatting, and professional appearance.
+3.3. Maintainability
+	•	NFR4: The codebase should be well-documented and organized for ease of maintenance, updates, and potential future enhancements.
+	•	NFR5: Configuration settings should be centralized and easy to modify without altering the core application code.
+3.4. Scalability
+	•	NFR6: The application should be designed to handle an increasing number of rules and adapt to potential changes in the OpenAI API or templates.
+3.5. Security
+	•	NFR7: Sensitive information, such as the OpenAI API key, must be securely managed and not hard-coded in the source code.
+	•	NFR8: The application should protect against injection attacks or malicious data in the Excel file.
+3.6. Compliance
+	•	NFR9: The application must comply with OpenAI's API usage policies, including rate limits and content guidelines.
+
+4. Technical Specifications
+4.1. Technologies and Libraries
+	•	Programming Language: Python 3.x
+	•	Libraries:
+	◦	pandas: For reading and processing Excel files.
+	◦	python-docx: For working with Word documents.
+	◦	openai: For interacting with the OpenAI API.
+	◦	logging: For logging application activities.
+	◦	dotenv: For managing environment variables securely.
+4.2. Excel File Structure
+The Excel file should contain the following columns:
+	•	Rule ID: Unique identifier for the rule.
+	•	Severity: Indicator of whether the rule is an Error or a Warning.
+	•	Description: A description of the rule.
+4.3. OpenAI API Usage
+	•	Input to OpenAI: For each rule, the application shall construct prompts using the extracted information to request the AI to generate the required additional content.
+	•	Output from OpenAI: The AI-generated responses shall be parsed and formatted appropriately to fill in the Word template.
+Example Prompts:
+	•	Generating the Title Domain + Rule ID:
+	◦	"Given the following rule description: '{Description}', generate a concise title for the domain, including the Rule ID '{Rule ID}'."
+	•	Generating the Mapping Table Content:
+	◦	"Based on the rule: '{Description}', identify the XML element it applies to and the corresponding JSON element after conversion. Provide this information in a structured format."
+	•	Generating the Rule Condition and Pseudocode:
+	◦	"Express the following rule in a formal condition and pseudocode: '{Description}'."
+4.4. Word Template Placeholders
+The provided Word document template will have placeholders that must be filled with both extracted and AI-generated information:
+	•	Extracted from Excel:
+	◦	{RuleID}: The Rule ID.
+	◦	{Severity}: Error or Warning.
+	◦	{Description}: The rule description.
+	•	Generated by AI:
+	◦	{Title}: Title domain combined with Rule ID.
+	◦	{BriefDescription}: A concise elaboration of the rule (if needed).
+	◦	Mapping Table:
+	▪	{XMLElement}: The XML element the rule applies to.
+	▪	{JSONElement}: The corresponding JSON element after conversion.
+	◦	{Condition}: The rule condition.
+	◦	{PseudoCode}: The rule expressed in pseudocode.
+	◦	{Explanation}: Any additional explanations or details.
+4.5. Output
+	•	The application will generate Word documents (.docx) for each rule.
+	•	Files will be named consistently, e.g., Rule_<RuleID>.docx.
+	•	Documents will be saved in the specified output directory.
+	•	The structure and formatting of the provided Word template must be preserved in the generated documents.
+4.6. Configuration
+A configuration file (config.py or similar) will contain:
+	•	File Paths:
+	◦	Excel file path.
+	◦	Word template path.
+	◦	Output directory path.
+	•	OpenAI API Key:
+	◦	Managed securely via environment variables or a separate secure configuration file.
+	•	Logging Settings:
+	◦	Log file path.
+	◦	Log level (e.g., INFO, DEBUG).
+
+5. Use Cases
+5.1. Document Generation with AI Integration
+Actor: User
+Precondition: The user has an Excel file with business rules and the provided Word template with the correct placeholders.
+Main Flow:
+	1	The user configures the application paths and settings in the configuration file.
+	2	The user runs the application.
+	3	The application reads the Excel file and extracts the required fields for each rule.
+	4	For each rule, the application constructs prompts and invokes the OpenAI API to generate the additional required information.
+	5	The application fills the Word template with both the extracted and AI-generated information.
+	6	The application saves the generated document in the output directory.
+Postcondition: Word documents are generated for each rule, fully populated with the necessary information, preserving the template's structure.
+5.2. Error Handling
+Actor: User
+Scenario: The OpenAI API returns an error or invalid response.
+Main Flow:
+	1	The application attempts to invoke the OpenAI API for a rule.
+	2	The API returns an error (e.g., rate limit exceeded, invalid API key).
+	3	The application logs the error with details.
+	4	The application retries the API call if appropriate (e.g., after a delay for rate limits).
+	5	If the error persists, the application skips the rule or terminates, providing an informative error message to the user.
+Postcondition: The user is informed of the issue and can take corrective action.
+
+6. User Interface
+This is a command-line application with configurations set in a configuration file. No graphical user interface is required.
+
+7. Constraints and Assumptions
+	•	Assumptions:
+	◦	The Excel file provided will be in the expected format with the required columns.
+	◦	The Word template will be provided and will have the necessary placeholders.
+	◦	The user has valid OpenAI API credentials with sufficient quota.
+	◦	The AI-generated content will be relevant and accurate based on the prompts.
+	•	Constraints:
+	◦	The application relies on the OpenAI API and requires network connectivity.
+	◦	The application must adhere to OpenAI's policies and any content restrictions.
